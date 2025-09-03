@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Health Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .chat-container {
+      background: #fff;
+      width: 400px;
+      height: 600px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      background: #4a69bd;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .chat-box {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .message {
+      margin: 8px 0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      max-width: 80%;
+    }
+    .bot {
+      background: #e0e7ff;
+      align-self: flex-start;
+    }
+    .user {
+      background: #74ebd5;
+      align-self: flex-end;
+    }
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+    .chat-input button {
+      background: #4a69bd;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .chat-input button:hover {
+      background: #2c3e9d;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">🤖 AI Health Assistant</div>
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">Hello! I’m your AI health assistant. Please tell me your health issue.</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chatBox");
+
+    function sendMessage() {
+      const inputField = document.getElementById("userInput");
+      const userText = inputField.value.trim();
+      if (userText === "") return;
+
+      // Display user message
+      appendMessage(userText, "user");
+      inputField.value = "";
+
+      // Bot reply after short delay
+      setTimeout(() => {
+        const botReply = getBotReply(userText);
+        appendMessage(botReply, "bot");
+      }, 800);
+    }
+
+    function appendMessage(text, sender) {
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message", sender);
+      msgDiv.innerHTML = text;
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function getBotReply(userText) {
+      const text = userText.toLowerCase();
+      if (text.includes("tooth") || text.includes("teeth")) {
+        return "You should visit a 🦷 Dentist. Appointment booked!";
+      } else if (text.includes("eye") || text.includes("vision")) {
+        return "You should visit an 👁️ Eye Specialist. Appointment booked!";
+      } else if (text.includes("heart") || text.includes("chest")) {
+        return "You should visit a ❤️ Cardiologist. Appointment booked!";
+      } else if (text.includes("skin") || text.includes("rash")) {
+        return "You should visit a 🧴 Dermatologist. Appointment booked!";
+      } else if (text.includes("fever") || text.includes("cold") || text.includes("cough")) {
+        return "You should visit a 👨‍⚕️ General Physician. Appointment booked!";
+      } else if (text.includes("hello") || text.includes("hi")) {
+        return "Hello! Please describe your health issue.";
+      } else {
+        return "Sorry, I’m not sure. I will book you with a 👨‍⚕️ General Physician.";
+      }
+    }
+  </script>
+</body>
+</html>
