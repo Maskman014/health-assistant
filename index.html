@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Health Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      width: 420px;
+      max-width: 95%;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      color: #555;
+      font-weight: bold;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    button {
+      background: linear-gradient(135deg, #4a69bd, #6a89cc);
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 15px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #2c3e9d, #4a69bd);
+    }
+    .assistant-box {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9ff;
+      border-radius: 12px;
+      display: none;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+    .assistant-message {
+      padding: 12px 16px;
+      margin: 6px 0;
+      border-radius: 12px;
+      max-width: 85%;
+      animation: fadeIn 0.5s ease-in;
+    }
+    .bot {
+      background: #e0e7ff;
+      color: #2c3e9d;
+      border-left: 5px solid #4a69bd;
+    }
+    .highlight {
+      background: #d4edda;
+      color: #155724;
+      border-left: 5px solid #28a745;
+      font-weight: bold;
+      text-align: center;
+      padding: 14px;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🤖 AI Health Assistant</h2>
+    <label for="name">Your Name:</label>
+    <input type="text" id="name" placeholder="Enter your name">
+
+    <label for="issue">Health Issue:</label>
+    <textarea id="issue" placeholder="Describe your problem..."></textarea>
+
+    <label for="date">Preferred Date & Time:</label>
+    <input type="datetime-local" id="date">
+
+    <button onclick="bookAppointment()">Book Appointment</button>
+
+    <div class="assistant-box" id="assistantBox">
+      <div class="chat-area" id="chatArea"></div>
+    </div>
+  </div>
+
+  <script>
+    // Disease → Specialist Mapping (Expert-like knowledge)
+    const diseaseMapping = {
+      "tooth": "Dentist",
+      "teeth": "Dentist",
+      "cavity": "Dentist",
+      "gum": "Dentist",
+      "eye": "Ophthalmologist",
+      "vision": "Ophthalmologist",
+      "cataract": "Ophthalmologist",
+      "heart": "Cardiologist",
+      "chest pain": "Cardiologist",
+      "lungs": "Pulmonologist",
+      "breathing": "Pulmonologist",
+      "asthma": "Pulmonologist",
+      "skin": "Dermatologist",
+      "rash": "Dermatologist",
+      "allergy": "Dermatologist",
+      "fever": "General Physician",
+      "cold": "General Physician",
+      "cough": "General Physician",
+      "stomach": "Gastroenterologist",
+      "liver": "Gastroenterologist",
+      "diabetes": "Endocrinologist",
+      "thyroid": "Endocrinologist",
+      "bone": "Orthopedic",
+      "joint": "Orthopedic",
+      "fracture": "Orthopedic",
+      "kidney": "Nephrologist",
+      "urine": "Urologist",
+      "brain": "Neurologist",
+      "headache": "Neurologist",
+      "depression": "Psychiatrist",
+      "anxiety": "Psychiatrist"
+    };
+
+    function getDoctor(issue) {
+      for (let keyword in diseaseMapping) {
+        if (issue.includes(keyword)) {
+          return diseaseMapping[keyword];
+        }
+      }
+      return "General Physician"; // fallback if no match
+    }
+
+    function bookAppointment() {
+      let name = document.getElementById("name").value.trim();
+      let issue = document.getElementById("issue").value.toLowerCase().trim();
+      let date = document.getElementById("date").value;
+
+      if (name === "" || issue === "" || date === "") {
+        alert("⚠️ Please fill all fields!");
+        return;
+      }
+
+      let doctor = getDoctor(issue);
+
+      let assistantBox = document.getElementById("assistantBox");
+      let chatArea = document.getElementById("chatArea");
+      assistantBox.style.display = "block";
+      chatArea.innerHTML = ""; // reset old chat
+
+      // Simulated chatbot conversation
+      addMessage(`Hello ${name}! 👋`, "bot");
+      setTimeout(() => addMessage(`I understand you have: "${issue}".`, "bot"), 1000);
+      setTimeout(() => addMessage(`Based on my knowledge, you should consult a **${doctor}**. 🩺`, "bot"), 2000);
+      setTimeout(() => addMessage(`📅 Appointment Date & Time: ${date}`, "bot"), 3000);
+      setTimeout(() => addMessage(`✅ Appointment Booked Successfully!`, "highlight"), 4000);
+      setTimeout(() => addMessage(`Take care, ${name}! 🌸`, "bot"), 5000);
+    }
+
+    function addMessage(text, style) {
+      let chatArea = document.getElementById("chatArea");
+      let msg = document.createElement("div");
+      msg.classList.add("assistant-message");
+      msg.classList.add(style);
+      msg.innerHTML = text; // allow bold doctor names
+      chatArea.appendChild(msg);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+  </script>
+</body>
+</html>
