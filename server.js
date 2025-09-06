@@ -10,8 +10,10 @@ const PORT = 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, "public")));
+// Serve the index.html file directly from the root
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
 // Doctor database
 const doctors = [
