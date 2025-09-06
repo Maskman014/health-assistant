@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CityCare Hospital - Appointment Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+    header {
+      background: #0066cc;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    h2 {
+      color: #0066cc;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #004999;
+    }
+    .letter {
+      display: none;
+      margin-top: 30px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background: #fafafa;
+    }
+    .letter h3 {
+      text-align: center;
+      color: #0066cc;
+    }
+    .meta {
+      margin-top: 15px;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CityCare Multispeciality Hospital</h1>
+    <p>123 Health Street, Wellness City • +91-98765-43210</p>
+  </header>
+
+  <div class="container">
+    <h2>Book an Appointment</h2>
+    <form id="appointmentForm" onsubmit="event.preventDefault(); onBook();">
+      <label for="name">Full Name:</label>
+      <input type="text" id="name" required />
+
+      <label for="contact">Contact Number:</label>
+      <input type="text" id="contact" required />
+
+      <label for="issue">Health Issue / Symptoms:</label>
+      <textarea id="issue" rows="3" required></textarea>
+
+      <label for="date">Preferred Date:</label>
+      <input type="date" id="date" required />
+
+      <label for="time">Preferred Time:</label>
+      <input type="time" id="time" />
+
+      <button type="submit">Book Appointment</button>
+    </form>
+
+    <div class="letter" id="letter">
+      <h3 style="text-align: left; margin-bottom: 5px;">CityCare Multispeciality Hospital</h3>
+      <p style="text-align: left; font-size: 14px; margin-top: 0;">123 Health Street, Wellness City</p>
+      <h3>Appointment Confirmation Letter</h3>
+      <p>Date: <span id="letterDate"></span></p>
+      <p>To, <span id="letterName"></span></p>
+      <p>Dear <span id="letterName2"></span>,</p>
+      <p>We are pleased to confirm your appointment at CityCare Multispeciality Hospital.</p>
+
+      <div class="meta">
+        <p><strong>Patient Name:</strong> <span id="metaName"></span></p>
+        <p><strong>Contact:</strong> <span id="metaContact"></span></p>
+        <p><strong>Health Issue:</strong> <span id="metaIssue"></span></p>
+        <p><strong>Assigned Specialist:</strong> <span id="metaDoctor"></span></p>
+        <p><strong>Department Contact:</strong> <span id="metaDeptContact"></span></p>
+        <p><strong>Consulting Room:</strong> <span id="metaRoom"></span></p>
+        <p><strong>Appointment Date & Time:</strong> <span id="metaDateTime"></span></p>
+      </div>
+
+      <p>Please carry a valid photo ID and arrive 15 minutes early.</p>
+      <p>Sincerely,<br />Hospital Administration</p>
+    </div>
+  </div>
+
+  <script>
+    const backendUrl = "https://ai-assistant-d64k.onrender.com";
+
+    function combineToISO(dateStr, timeStr) {
+      if (!dateStr) return null;
+      const time = timeStr && timeStr.length ? timeStr : "09:00";
+      return `${dateStr}T${time}:00`;
+    }
+
+    async function onBook() {
+      const name = document.getElementById("name").value.trim();
+      const contact = document.getElementById("contact").value.trim();
+      const issue  = document.getElementById("issue").value.trim();
+      const dateV  = document.getElementById("date").value;
+      const timeV  = document.getElementById("time").value;
+
+      if (!name || !contact || !issue || !dateV) {
+        alert("Please fill all required fields.");
+        return;
+      }
+
+      const isoDate = combineToISO(dateV, timeV);
+
+      try {
+        const resp = await fetch(backendUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, issue, date: isoDate })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) {
+          alert(data.error || "Booking failed.");
+          return;
+        }
+
+        const appt = data.appointment || data;
+
+        // Fill letter
+        document.getElementById("letterDate").textContent = new Date().toLocaleDateString();
+        document.getElementById("letterName").textContent = name;
+        document.getElementById("letterName2").textContent = name;
+
+        document.getElementById("metaName").textContent = name;
+        document.getElementById("metaContact").textContent = contact;
+        document.getElementById("metaIssue").textContent = issue;
+
+        document.getElementById("metaDoctor").textContent = `${appt.doctor} (${appt.department})`;
+        document.getElementById("metaDeptContact").textContent = appt.contact;
+        document.getElementById("metaRoom").textContent = appt.room;
+        document.getElementById("metaDateTime").textContent = new Date(isoDate).toLocaleString();
+
+        document.getElementById("letter").style.display = "block";
+        document.getElementById("letter").scrollIntoView({ behavior: "smooth" });
+
+      } catch (err) {
+        console.error(err);
+        alert("Could not reach the server. Make sure backend is running.");
+      }
+    }
+  </script>
+</body>
+</html>
